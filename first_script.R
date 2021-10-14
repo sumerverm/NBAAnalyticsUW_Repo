@@ -25,3 +25,19 @@ install.packages("future")
 install.packages("lubridate")
 
 
+###############
+#LOAD Libraries
+####
+library(tidyverse)
+library(nbastatR)
+library(BasketballAnalyzeR)
+library(jsonlite)
+library(janitor)
+library(extrafont)
+library(ggrepel)
+library(scales)
+library(teamcolors)
+library(zoo)
+library(future)
+library(lubridate)
+
