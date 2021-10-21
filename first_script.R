@@ -127,3 +127,30 @@ barline(data=Pbox.sel[Pbox.sel$Season==seasonSelected,], id="Player",
         bars=c("P2M","P3M","FTM"), line="PTS",
         order.by="PTS", labels.bars=c("2PM","3PM","FTM"),
         title=teamSelected)
+
+
+##
+# Create Tbox (Team boxscore) for each Regular Season
+Tbox <- T_gamelog_reg %>%
+  group_by("Season"=yearSeason, "Team"=slugTeam) %>%
+  dplyr::summarise(GP=n(), MIN=sum(round(minutesTeam/5)),
+                   PTS=sum(ptsTeam),
+                   W=sum(outcomeGame=="W"), L=sum(outcomeGame=="L"),
+                   P2M=sum(fg2mTeam), P2A=sum(fg2aTeam), P2p=P2M/P2A,
+                   P3M=sum(fg3mTeam), P3A=sum(fg3aTeam), P3p=P3M/P3A,
+                   FTM=sum(ftmTeam), FTA=sum(ftaTeam), FTp=FTM/FTA,
+                   OREB=sum(orebTeam), DREB=sum(drebTeam), AST=sum(astTeam),
+                   TOV=sum(tovTeam), STL=sum(stlTeam), BLK=sum(blkTeam),
+                   PF=sum(pfTeam), PM=sum(plusminusTeam)) %>%
+  as.data.frame()
+
+Tvisual <- Tbox %>%
+  group_by(Season)%>%
+  summarise(avgP3p = mean(P3p),avgFTp = mean(FTp))%>%
+  ggplot(aes(x = Season))+
+  geom_line(aes(y = avgP3p))+
+  geom_line(aes(y = avgFTp))
+
+
+Tvisual
+
