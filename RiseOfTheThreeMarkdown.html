@@ -383,14 +383,114 @@ summary {
 <h2>R Markdown</h2>
 <p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
 <p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
-<pre class="r"><code>summary(cars)</code></pre>
-<pre><code>##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00</code></pre>
+<pre class="r"><code>###############
+#LOAD Libraries
+####
+library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+## ✓ tibble  3.1.5     ✓ dplyr   1.0.7
+## ✓ tidyr   1.1.4     ✓ stringr 1.4.0
+## ✓ readr   2.0.2     ✓ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(nbastatR)</code></pre>
+<pre><code>## Warning: replacing previous import &#39;dplyr::collapse&#39; by &#39;glue::collapse&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;curl::handle_reset&#39; by &#39;httr::handle_reset&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;httr::timeout&#39; by &#39;memoise::timeout&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;magrittr::set_names&#39; by &#39;purrr::set_names&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;jsonlite::flatten&#39; by &#39;purrr::flatten&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;curl::parse_date&#39; by &#39;readr::parse_date&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::list_along&#39; by &#39;rlang::list_along&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::invoke&#39; by &#39;rlang::invoke&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::flatten_raw&#39; by &#39;rlang::flatten_raw&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::modify&#39; by &#39;rlang::modify&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::as_function&#39; by &#39;rlang::as_function&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::flatten_dbl&#39; by &#39;rlang::flatten_dbl&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;jsonlite::unbox&#39; by &#39;rlang::unbox&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::flatten_lgl&#39; by &#39;rlang::flatten_lgl&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::flatten_int&#39; by &#39;rlang::flatten_int&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::%@%&#39; by &#39;rlang::%@%&#39; when loading
+## &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::flatten_chr&#39; by &#39;rlang::flatten_chr&#39;
+## when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::splice&#39; by &#39;rlang::splice&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::flatten&#39; by &#39;rlang::flatten&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;purrr::prepend&#39; by &#39;rlang::prepend&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;readr::guess_encoding&#39; by
+## &#39;rvest::guess_encoding&#39; when loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;magrittr::extract&#39; by &#39;tidyr::extract&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre><code>## Warning: replacing previous import &#39;rlang::as_list&#39; by &#39;xml2::as_list&#39; when
+## loading &#39;nbastatR&#39;</code></pre>
+<pre class="r"><code>library(BasketballAnalyzeR)</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;GGally&#39;:
+##   method from   
+##   +.gg   ggplot2</code></pre>
+<pre><code>## 
+## If you want to reproduce the figures contained in the book of
+## Zuccolotto and Manisera (2020) and
+## if the version of your R machine is &gt;= 3.6.0, you need to type
+## RNGkind(sample.kind = &quot;Rounding&quot;)
+## at the beginning of your working session</code></pre>
+<pre class="r"><code>library(jsonlite)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;jsonlite&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     flatten</code></pre>
+<pre class="r"><code>library(janitor)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;janitor&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     chisq.test, fisher.test</code></pre>
+<pre class="r"><code>library(extrafont)</code></pre>
+<pre><code>## Registering fonts with R</code></pre>
+<pre class="r"><code>library(ggrepel)
+library(scales)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;scales&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     discard</code></pre>
+<pre><code>## The following object is masked from &#39;package:readr&#39;:
+## 
+##     col_factor</code></pre>
+<pre class="r"><code>library(teamcolors)
+library(zoo)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric</code></pre>
+<pre class="r"><code>library(future)
+library(lubridate)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;lubridate&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     date, intersect, setdiff, union</code></pre>
+<pre class="r"><code>Sys.setenv(&quot;VROOM_CONNECTION_SIZE&quot; = 131072 * 2)</code></pre>
 </div>
 <div id="including-plots" class="section level2">
 <h2>Including Plots</h2>
