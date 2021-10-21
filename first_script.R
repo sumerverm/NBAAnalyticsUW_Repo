@@ -52,7 +52,7 @@ Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
 #Get Game ID's and Gamelog Data
 
 # Select seasons from 1949 and after
-selectedSeasons <- c(1996:1998)
+selectedSeasons <- c(2019:2020)
 # Get game IDs for Regular Season and Playoffs
 gameIds_Reg <- suppressWarnings(seasons_schedule(seasons = selectedSeasons, season_types = "Regular Season") %>% select(idGame, slugMatchup))
 gameIds_PO <- suppressWarnings(seasons_schedule(seasons = selectedSeasons, season_types = "Playoffs") %>% select(idGame, slugMatchup))

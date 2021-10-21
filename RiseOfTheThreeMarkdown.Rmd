@@ -16,7 +16,24 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r cars}
-summary(cars)
+###############
+#LOAD Libraries
+####
+library(tidyverse)
+library(nbastatR)
+library(BasketballAnalyzeR)
+library(jsonlite)
+library(janitor)
+library(extrafont)
+library(ggrepel)
+library(scales)
+library(teamcolors)
+library(zoo)
+library(future)
+library(lubridate)
+
+Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
+
 ```
 
 ## Including Plots
