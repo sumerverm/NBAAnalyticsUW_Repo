@@ -114,7 +114,7 @@ Pbox <- P_gamelog_reg %>%
                    TOV=sum(tov), STL=sum(stl), BLK=sum(blk),
                    PF=sum(pf)) %>%
   as.data.frame()
-View(Pbox[Pbox$Player=="Michael Jordan",])
+View(Pbox[Pbox$Player=="Michael Jodan",])
 
 # Bar plots
 #####################
