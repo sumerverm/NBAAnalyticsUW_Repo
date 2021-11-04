@@ -152,5 +152,11 @@ Tvisual <- Tbox %>%
   geom_line(aes(y = avgFTp))
 
 
-Tvisual
+Tvisual <- Tbox %>%
+  group_by(Season)%>%
+  summarise(avgP3p = mean(P3p),avgFTp = mean(FTp))%>%
+  ggplot(aes(x = Season))+
+  geom_line(aes(y = avgP3p))+
+  geom_line(aes(y = avgFTp))
+
 
