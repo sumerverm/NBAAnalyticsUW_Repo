@@ -52,7 +52,7 @@ Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
 #Get Game ID's and Gamelog Data
 
 # Select seasons from 1949 and after
-selectedSeasons <- c(1996:1998)
+selectedSeasons <- c(2010:2020)
 # Get game IDs for Regular Season and Playoffs
 gameIds_Reg <- suppressWarnings(seasons_schedule(seasons = selectedSeasons, season_types = "Regular Season") %>% select(idGame, slugMatchup))
 gameIds_PO <- suppressWarnings(seasons_schedule(seasons = selectedSeasons, season_types = "Playoffs") %>% select(idGame, slugMatchup))
@@ -114,15 +114,15 @@ Pbox <- P_gamelog_reg %>%
                    TOV=sum(tov), STL=sum(stl), BLK=sum(blk),
                    PF=sum(pf)) %>%
   as.data.frame()
-View(Pbox[Pbox$Player=="Michael Jodan",])
+View(Pbox[Pbox$Player=="Stephen Curry",])
 
 # Bar plots
 #####################
 
-teamSelected <- "CHI"
+teamSelected <- "GSW"
 Pbox.sel <- subset(Pbox, Team==teamSelected &
                      MIN>=1000)
-seasonSelected <- 1998
+seasonSelected <- 2016
 barline(data=Pbox.sel[Pbox.sel$Season==seasonSelected,], id="Player",
         bars=c("P2M","P3M","FTM"), line="PTS",
         order.by="PTS", labels.bars=c("2PM","3PM","FTM"),
@@ -152,11 +152,6 @@ Tvisual <- Tbox %>%
   geom_line(aes(y = avgFTp))
 
 
-Tvisual <- Tbox %>%
-  group_by(Season)%>%
-  summarise(avgP3p = mean(P3p),avgFTp = mean(FTp))%>%
-  ggplot(aes(x = Season))+
-  geom_line(aes(y = avgP3p))+
-  geom_line(aes(y = avgFTp))
+
 
 
