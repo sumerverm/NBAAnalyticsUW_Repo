@@ -144,14 +144,100 @@ Tbox <- T_gamelog_reg %>%
                    PF=sum(pfTeam), PM=sum(plusminusTeam)) %>%
   as.data.frame()
 
+## This scatter displays the relationship between 
+# assists and turnovers, each dot represents a player categorical variable
+
+teamSelected <- "GSW"
+Pbox.sel <-subset(Pbox,Team==teamSelected & MIN>=1000)
+attach(Pbox.sel)
+X <- data.frame(AST,TOV,PTS)/MIN
+detach(Pbox.sel)
+mypal <- colorRampPalette(c("blue","yellow","red"))
+
+scatterplot(X, data.var=c("AST","TOV"), z.var="PTS",
+            labels=paste(Pbox.sel$Player,", ",Pbox.sel$Season), palette=mypal)
+
+scatterplot(X, data.var=c("AST","TOV"), z.var="PTS",
+            labels=paste(Pbox.sel$Player,", ",Pbox.sel$Season), palette=mypal,
+            zoom=c(0.08,0.16,0.05,0.10))
+
+
+# This bubble plot shows the relationshio between 2 point percentage 
+# and 3 point percentage, attempted shots are the circle size, free throw percentage is
+# represented as the color of the circle
+seasonSelected <- 2016
+Tbox.sel <- subset(Tbox_all,Season==seasonSelected)
+
+attach(Tbox.sel)
+X <- data.frame(T=Team, P2p, P3p, FTp, AS=P2A+P3A+FTA)
+detach(Tbox.sel)
+labs <- c("2-point shots (% made)",
+          "3-point shots (% made)",
+          "free throws (% made)",
+          "Total shots attempted")
+bubbleplot(X, id="T", x="P2p", y="P3p", col="FTp",
+           size="AS", labels=labs, title=paste0("NBA - ", seasonSelected))
+
+## This bubble plot shows the relationship between rebounds and steals, 
+# with the total minutes played representing the circle size, the blocks 
+# are depicted with the color of the circle
+# these are the best performing teams f 2016
+# shows that stephen curry was amazing at offense not much at defense
+
+teamsSelected <- c("HOU", "LAC", "SAS", "GSW")
+seasonSelected <- 2016
+Pbox.sel <- subset(Pbox, Team %in% teamsSelected & MIN>=1500 & Season==seasonSelected)
+
+attach(Pbox.sel)
+X <- data.frame(ID=Player, Team, V1=DREB/MIN, V2=STL/MIN,
+                V3=BLK/MIN, V4=MIN)
+detach(Pbox.sel)
+labs <- c("Defensive Rebounds","Steals","Blocks",
+          "Total minutes played")
+bubbleplot(X, id="ID", x="V1", y="V2", col="V3",
+           size="V4", text.col="Team", labels=labs,
+           title=paste0("NBA Players in ", seasonSelected),
+           text.legend=TRUE, text.size=3.5, scale=FALSE)
+
+
+##
+teamsSelected <- c("MIL", "MIA", "TOR", "BOS")
+seasonSelected <- 2020
+Pbox.sel <- subset(Pbox, Team %in% teamsSelected & MIN>=1500 & Season==seasonSelected)
+
+attach(Pbox.sel)
+X <- data.frame(ID=Player, Team, V1=DREB/MIN, V2=STL/MIN,
+                V3=BLK/MIN, V4=MIN)
+detach(Pbox.sel)
+labs <- c("Defensive Rebounds","Steals","Blocks",
+          "Total minutes played")
+bubbleplot(X, id="ID", x="V1", y="V2", col="V3",
+           size="V4", text.col="Team", labels=labs,
+           title=paste0("NBA Players in ", seasonSelected),
+           text.legend=TRUE, text.size=3.5, scale=FALSE)
+
+## cluster analysis offensive efficency ratios
+## Four factors to success Score, Protect, Crsh and attack
+## Effective Field goal percentage
+## Turnover Ratio
+## rebound Percentage
+# Free Throw Rate
+
+#Hierarchical Clustering of NBA players
+
+
+
+
+
+
+
+
+
+
 Tvisual <- Tbox %>%
   group_by(Season)%>%
   summarise(avgP3p = mean(P3p),avgFTp = mean(FTp))%>%
   ggplot(aes(x = Season))+
   geom_line(aes(y = avgP3p))+
   geom_line(aes(y = avgFTp))
-
-
-
-
 
