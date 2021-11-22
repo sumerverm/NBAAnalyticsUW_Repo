@@ -29,7 +29,9 @@ install.packages("future")
 #Lubridate makes it easier to do the things 
 #R does with date-times and possible to do the things R does not
 install.packages("lubridate")
-
+install.packages('gganimate')
+install.packages('gifski')
+install.packages('png')
 
 ###############
 #LOAD Libraries
@@ -46,6 +48,9 @@ library(teamcolors)
 library(zoo)
 library(future)
 library(lubridate)
+library(ggplot2)
+library(gganimate)
+library(gifski)
 
 Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
 
@@ -146,9 +151,11 @@ Tbox <- T_gamelog_reg %>%
 
 ## This scatter displays the relationship between 
 # assists and turnovers, each dot represents a player categorical variable
-
+## account for perentages
 teamSelected <- "GSW"
-Pbox.sel <-subset(Pbox,Team==teamSelected & MIN>=1000)
+seasonSelected <- 2016
+Pbox.sel <-subset(Pbox,Team==teamSelected & MIN>=1000)%>% 
+  filter(Season==seasonSelected)
 attach(Pbox.sel)
 X <- data.frame(AST,TOV,PTS)/MIN
 detach(Pbox.sel)
@@ -165,18 +172,32 @@ scatterplot(X, data.var=c("AST","TOV"), z.var="PTS",
 # This bubble plot shows the relationshio between 2 point percentage 
 # and 3 point percentage, attempted shots are the circle size, free throw percentage is
 # represented as the color of the circle
-seasonSelected <- 2016
-Tbox.sel <- subset(Tbox_all,Season==seasonSelected)
 
+seasonSelected <- c(2010:2016)
+Tbox.sel <- filter(Tbox,Season%in%seasonSelected)
 attach(Tbox.sel)
-X <- data.frame(T=Team, P2p, P3p, FTp, AS=P2A+P3A+FTA)
+X <- data.frame(T=Team, P2p, P3p, W, AS=P2A+P3A+FTA, Season)
 detach(Tbox.sel)
 labs <- c("2-point shots (% made)",
           "3-point shots (% made)",
-          "free throws (% made)",
+          "Wins",
           "Total shots attempted")
-bubbleplot(X, id="T", x="P2p", y="P3p", col="FTp",
+p <- bubbleplot(X, id="T", x="P2p", y="P3p", col="W",
            size="AS", labels=labs, title=paste0("NBA - ", seasonSelected))
+p <- ggplot(X, aes(x = P2p, y = P3p, color= W,
+                   size = AS)) + 
+  geom_point() + 
+  labs(x ="2-point shots (% made)",
+          y = "3-point shots (% made)",
+          color="Wins",
+          size = "Total shots attempted")
+q <- p + transition_states(Season)
+animate(q)
+plot(q)
+
+
+
+
 
 ## This bubble plot shows the relationship between rebounds and steals, 
 # with the total minutes played representing the circle size, the blocks 
@@ -227,9 +248,9 @@ bubbleplot(X, id="ID", x="V1", y="V2", col="V3",
 
 
 
+## attempts vs made 
 
-
-
+## 3 pointers made and true shooting percentage
 
 
 
