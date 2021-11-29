@@ -51,6 +51,7 @@ library(lubridate)
 library(ggplot2)
 library(gganimate)
 library(gifski)
+library(png)
 
 Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
 
