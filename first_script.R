@@ -23,6 +23,7 @@ install.packages("scales")
 install.packages("teamcolors")
 #zoo  class with methods for totally ordered indexed observations, vectors matrices and factors
 install.packages("zoo")
+
 #future provide a lightweight and unified Future API 
 #for sequential and parallel processing of R expression via futures.
 install.packages("future")
@@ -253,13 +254,20 @@ bubbleplot(X, id="ID", x="V1", y="V2", col="V3",
 
 ## 3 pointers made and true shooting percentage
 
+## make a list of the top three point shooters from 1996-2020 and just make scatter plot of 3 point makes and year scatter plot
+
+Threepointleaders <- read.csv("3ptleaders.csv",TRUE,",")
+class(Threepointleaders)
+head(Threepointleaders)
+
+print(Threepointleaders)
+
+plot(x = Threepointleaders$Year, y = Threepointleaders$X3p,
+     xlab = "Year",
+     ylab = "3ptMade",
+     main = "NBA Annual 3point Leaders"
+     )
 
 
 
-Tvisual <- Tbox %>%
-  group_by(Season)%>%
-  summarise(avgP3p = mean(P3p),avgFTp = mean(FTp))%>%
-  ggplot(aes(x = Season))+
-  geom_line(aes(y = avgP3p))+
-  geom_line(aes(y = avgFTp))
 
