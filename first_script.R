@@ -34,6 +34,9 @@ install.packages('gganimate')
 install.packages('gifski')
 install.packages('png')
 install.packages("ggplot2")
+install.packages("dplyr")
+install.packages("stringr")
+
 
 ###############
 #LOAD Libraries
@@ -54,6 +57,8 @@ library(ggplot2)
 library(gganimate)
 library(gifski)
 library(png)
+library(dplyr)
+library(stringr)
 
 Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
 
@@ -249,26 +254,38 @@ bubbleplot(X, id="ID", x="V1", y="V2", col="V3",
 
 #Hierarchical Clustering of NBA players
 
+gamedata <- game_logs(seasons = 2020)
+
+#### Here we look at the minutes played and points scored
+plot1 <- ggplot(gamedata, aes(minutes,pts))+
+  geom_point()
+plot1
 
 
+plot2 <-ggplot(gamedata, aes(minutes,pts))+
+  geom_line()+
+  geom_smooth(method = 'loess')+
+  facet_wrap(~nameTeam)
+plot2
 ## attempts vs made 
 
 ## 3 pointers made and true shooting percentage
 
 ## make a list of the top three point shooters from 1996-2020 and just make scatter plot of 3 point makes and year scatter plot
 
-Threepointleaders <- read.csv("3ptleaders.csv",TRUE,",")
+Threepointleaders <- read.csv("3ptleaders.csv",TRUE,",")%>%
+  mutate(Player = str_squish(Player), Year = str_trunc(str_squish(Year),4,"right",ellipsis = ""))%>% 
+  mutate(Year = as.Date(Year, "%Y"))
 class(Threepointleaders)
 head(Threepointleaders)
 
 print(Threepointleaders)
 
-p1 <- ggplot() + geom_line(aes(y = X3p, x = Year),
-                           data = Threepointleaders)+
-  scale_x_continuous(breaks = seq(1979, 2020, 2))
-p1
+p1 <- ggplot(aes(y = X3p, x = (Year)),data = Threepointleaders) + geom_line(aes())+geom_point(aes(color = Player))
 
-p1 + labs(title = "NBA Annual 3point Leaders", x = "Year", y = "x3p")
+p1 + labs(title = "NBA Annual 3 Point 1979 to 2020", x = NULL, y = NULL)+ 
+  ##scale_x_date()+ 
+  theme(legend.position = "none")
 
 
 
