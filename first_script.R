@@ -33,6 +33,7 @@ install.packages("lubridate")
 install.packages('gganimate')
 install.packages('gifski')
 install.packages('png')
+install.packages("ggplot2")
 
 ###############
 #LOAD Libraries
@@ -262,11 +263,13 @@ head(Threepointleaders)
 
 print(Threepointleaders)
 
-plot(x = Threepointleaders$Year, y = Threepointleaders$X3p,
-     xlab = "Year",
-     ylab = "3ptMade",
-     main = "NBA Annual 3point Leaders"
-     )
+p1 <- ggplot() + geom_line(aes(y = X3p, x = Year),
+                           data = Threepointleaders)+
+  scale_x_continuous(breaks = seq(1979, 2020, 2))
+p1
+
+p1 + labs(title = "NBA Annual 3point Leaders", x = "Year", y = "x3p")
+
 
 
 
