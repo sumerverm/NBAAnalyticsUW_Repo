@@ -1,0 +1,202 @@
+---
+title: "Rise of the three"
+author: "Sumer Verma"
+date: "12/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(nbastatR)
+library(BasketballAnalyzeR)
+library(jsonlite)
+library(janitor)
+library(extrafont)
+library(ggrepel)
+library(scales)
+library(teamcolors)
+library(zoo)
+library(future)
+library(lubridate)
+library(ggplot2)
+library(gganimate)
+library(gifski)
+library(png)
+library(dplyr)
+library(stringr)
+
+Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Motivation and Overview
+
+The National Basketball Association (NBA) is a professional basketball league in North America and has become one of the most beloved sports leagues around the world. Having been around since 1946 the NBA has constantly evolved the sport of basketball to be more exciting over the past 7 decades. While many of these measures to transform the game in the NBA took place through a variety rule changes, innovative coaches and dominant players, one change that has shifted basketball drastically in a short period has been the vastly increased use of the Three Point shot during the preceding decade. As an NBA fan the goal of this project was to understand how analytics proliferated the use of the 3 point shot and attempt to understand which teams influenced the explosion of offense in the league. To give a deeper understanding of the state of the league today, analyzing data and a background in NBA history will serve as a primer to identify different aspects of the NBA that have affected the rise of the Three. 
+
+## Project Objectives
+The main objective of this project was to use data to identify and visualize the specific variables or trends that have caused an offensive shift in the league. Using this data in relation to different chunks of NBA history, I can present a compelling argument to why the game has shifted towards the increased use of the 3 Point Shot. 
+
+## Target Audience
+	
+The target audience for this project is anyone with an interest in data exploration and all NBA fans. In the report I have also included the data sets I used to create these visualizations and to display the major findings of the project. 
+
+## History
+
+When the NBA was first established in 1946, there were only 11 franchises and for 30 years the league competed with the rival organization known as the ABL (American Basketball League). During this time period neither league had a 3 point line on the court and points could only be scored by successfully making a layup, 2 point jump shot or a free-throw. While this model had been used since basketball was created by Dr. James Naismith in 1891, the ABL which was in dire financial straits decided to institute a 3 point shot in 1961 in an attempt to create a more exciting league. However, the ABL shut down in 1963 and became the ABA (American Basketball Association) which used the 3 point shot and slam dunk in an attempt to compete with the NBA. While the ABA would stay competitive with the NBA, it shut down 9 seasons later only to be acquired by the NBA. 
+The increased revenue and innovative rules acquired from the former ABA led the 3 point shot to be adopted by the league. To understand the three point shot offensive basketball must be understood in the segments.  These components are categorized as free throws, layups, mid-range jump shots and three pointers. The above-mentioned components are worth different values of points with a single successful free throw worth 1 point, and layups and mid-range jumpers as 2 points. The league only consisted of the aforementioned parts until 1979, when the NBA officially adopted 3 point line into its rule base. Despite the creation of a new component of offensive basketball people felt a line 22 feet away from the rim was a gimmick. George Mikan a former player and commissioner of the ABA argued in favor of the new rule as he stated it “ would give the smaller player a chance to score and open up the defense to make the game more enjoyable for fans”(Schuhmann). While the rule change was fully adopted by the 1980’s many players would not attempt three’s, in the first year of its inception most teams average less than three 3-point attempts per game, 4 decades later teams are averaging 23.7 attempts each game. 
+
+##Exploratory Data Analysis
+Player Level
+
+To identify how the 3 point shot became so widely used around the league, it was key to identify how the best 3 point shooters throughout league history have evolved. The NBA is a copycat league, and while many players over the past decade increased their total number of 3 point efficiency, one particular outlier was a considerable factor accounting for the player wide shift to the 3 point line. The following figure shows the NBA’s annual individual 3 point field goal leader since its advent in 1979, while there is a gradual shift over the course over 30 years in terms of individual annual 3 point leaders it was not substantial. However looking past the aberration of the shortened 2010 season, the rapid shift of the total three’s made by the annual 3 point leader seems astonishing. This was due to Stephen Curry entering the prime of his career over a four year period from 2012-2016. During this time Curry broke the NBA’s all-time single season record for 3-Pt field goals, set before by Ray Allen at 269 threes during the 2005-06 season. He then continued by breaking his own record twice ultimately culminating in the outlier point seen in the graph in 2016 where he made 402 threes. This was 312 more than Brian Taylor who set the record the first year the stat was tracked. 
+
+
+
+```{r boxscores, include=FALSE}
+selectedSeasons <- c(2004:2020)
+# Get game IDs for Regular Season and Playoffs
+
+#####################
+## Retrieve gamelog data for players and teams
+#####################
+# Get player gamelogs
+P_gamelog_reg <- suppressWarnings(game_logs(seasons = selectedSeasons, league = "NBA", result_types = "player", season_types = "Regular Season"))
+# Get team gamelogs
+T_gamelog_reg <- suppressWarnings(game_logs(seasons = selectedSeasons, league = "NBA", result_types = "team", season_types = "Regular Season"))
+
+#####################
+## Use Regular Season data
+#####################
+# Create Tbox (Team boxscore) for each Regular Season
+Tbox <- T_gamelog_reg %>%
+  group_by("Season"=yearSeason, "Team"=slugTeam) %>%
+  dplyr::summarise(GP=n(), MIN=sum(round(minutesTeam/5)),
+                   PTS=sum(ptsTeam),
+                   W=sum(outcomeGame=="W"), L=sum(outcomeGame=="L"),
+                   P2M=sum(fg2mTeam), P2A=sum(fg2aTeam), P2p=P2M/P2A,
+                   P3M=sum(fg3mTeam), P3A=sum(fg3aTeam), P3p=P3M/P3A,
+                   FTM=sum(ftmTeam), FTA=sum(ftaTeam), FTp=FTM/FTA,
+                   OREB=sum(orebTeam), DREB=sum(drebTeam), AST=sum(astTeam),
+                   TOV=sum(tovTeam), STL=sum(stlTeam), BLK=sum(blkTeam),
+                   PF=sum(pfTeam), PM=sum(plusminusTeam)) %>%
+  as.data.frame()
+# Create Obox (Opponent Team boxscore) for each Regular Season
+Obox <- T_gamelog_reg %>%
+  group_by("Season"=yearSeason, "Team"=slugOpponent) %>%
+  dplyr::summarise(GP=n(), MIN=sum(round(minutesTeam/5)),
+                   PTS=sum(ptsTeam),
+                   W=sum(outcomeGame=="L"), L=sum(outcomeGame=="W"),
+                   P2M=sum(fg2mTeam), P2A=sum(fg2aTeam), P2p=P2M/P2A,
+                   P3M=sum(fg3mTeam), P3A=sum(fg3aTeam), P3p=P3M/P3A,
+                   FTM=sum(ftmTeam), FTA=sum(ftaTeam), FTp=FTM/FTA,
+                   OREB=sum(orebTeam), DREB=sum(drebTeam), AST=sum(astTeam),
+                   TOV=sum(tovTeam), STL=sum(stlTeam), BLK=sum(blkTeam),
+                   PF=sum(pfTeam), PM=sum(plusminusTeam)) %>%
+  as.data.frame()
+# Create Pbox (Player boxscore) for each Regular Season
+Pbox <- P_gamelog_reg %>%
+  group_by("Season"=yearSeason, "Team"=slugTeam, "Player"=namePlayer) %>%
+  dplyr::summarise(GP=n(), MIN=sum(minutes), PTS=sum(pts),
+                   P2M=sum(fg2m), P2A=sum(fg2a), P2p=100*P2M/P2A,
+                   P3M=sum(fg3m), P3A=sum(fg3a), P3p=100*P3M/P3A,
+                   FTM=sum(ftm), FTA=sum(fta), FTp=100*FTM/FTA,
+                   OREB=sum(oreb), DREB=sum(dreb), AST=sum(ast),
+                   TOV=sum(tov), STL=sum(stl), BLK=sum(blk),
+                   PF=sum(pf)) %>%
+  as.data.frame()
+```
+
+## Including Plots
+```{r NbaAnnualthreeleaders, echo=FALSE}
+Threepointleaders <- read.csv("3ptleaders.csv",TRUE,",")%>%
+  mutate(Player = str_squish(Player), Year = str_trunc(str_squish(Year),4,"right",ellipsis = ""))%>% 
+  mutate(Year = as.Date(Year, "%Y"))
+class(Threepointleaders)
+head(Threepointleaders)
+
+print(Threepointleaders)
+
+p1 <- ggplot(aes(y = X3p, x = (Year)),data = Threepointleaders) + geom_line(aes())+geom_point(aes(color = Player))
+
+p1 + labs(title = "NBA Annual 3 Point Leaders 1979 to 2020", x = NULL, y = NULL)+ 
+  ##scale_x_date()+ 
+  theme(legend.position = "none")
+```
+
+The relationship of Stephen Curry being the highest volume 3 point shooter in terms of total attempts and made shots, makes him arguably the largest individual outlier in NBA history. Curry’s success in a league dominated by tall athletic Forwards was exceptional, this is due to his ability to make three point shots which cancelled the Meta (Most effective tactic) of aggressively driving to the rim for a layup or dunk or taking a 2 point mid-range jumper, which had largely dominated the league since the 1980’s. One key factor in Curry’s success was his ability to change the definition of being a shooter in the league. For many years in the league after the advent of the 3 point line, players that shot threes were specialists, meaning there only job on offense was to get free themselves to get a pass for an open three. Many of these players including Peja Stojakovich who was the 2003 league point leader as shown above, were spot up shooters taking a limited number of 3’s at specific points in the game. The drastic change caused by Steph was creating a new type of 3 point shooter or volume shooter, where a majority of their shot attempts came from beyond the 3 point line. 
+The following figure shows the overall ratio of the 2016 Golden State Warriors, with Steph Curry’s record breaking season in comparison with his teammates. This shows Steph Curry’s total 2 point field goals and 3 point field goals made in a ratio with one another. Unlike his teammates a majority of Curry’s points came from volume 3 point shooting, for a league which had never seen high volume 3 point shooters an equal ratio of  3 point and 2 point fields goals made doubled his scoring output. The record breaking years by Curry while seemingly divergent, have influenced a greater trend of volume shooters in the NBA. The 4 years following Curry’s 2016 year there were 10 players who made more than 250 threes, this was a rapid shift in a small period for a league that had only seen 3 other players make 250 or more 3-Pt field goals from 1979 to 2012. 
+
+```{r GswRatio, echo=FALSE}
+# Bar plots
+#####################
+
+teamSelected <- "GSW"
+Pbox.sel <- subset(Pbox, Team==teamSelected &
+                     MIN>=1000)
+seasonSelected <- 2016
+barline(data=Pbox.sel[Pbox.sel$Season==seasonSelected,], id="Player",
+        bars=c("P2M","P3M"), line="PTS",
+        order.by="PTS", labels.bars=c("2PM","3PM"),
+        title=teamSelected)
+```
+## Team Level
+While understanding the influence of an individual player over the whole league is important, shifts in organizational thinking also influenced the 3-Pt revolution in the NBA. One of the key areas of focus by many NBA teams in the past few years has been the use of analytics. While used by a majority of teams in the league to varying degrees now this was not always the case and was considered a passing trend. One pioneer of the use of analytics is Daryl Morey the former General Manager of the Houston Rockets. Morey’s key insight involved taking an increased number of three-point shots, while three pointers are more difficult because they are further from the basket, he recognized that the “50% uplift in points received for a three point shot (compared to a two-point shot) made it more efficient than all other two-point shots other than dunks and layups” (ZS). This new strategy eliminated the use of long mid-range two point jumpers as they were considered worse value than stepping back and taking a three pointer. 
+The figure below shows the Win percentage of all the teams in the league over a 6 year period in relation to their 3-point and 2-point field goal percentage. The graph shows a shift from 2010 to 2016 showing a greater relationship with overall team wins to their 3-point shot percentage. The Houston Rockets had begun their experiment with analytics and from 2013 to 2016 were second in overall wins behind the Golden State Warriors. The success of these organizations broke the often use phrase amongst basketball analysts that “Jump shooting teams can’t win championships”. While this may have been the case in previous seasons of the NBA the success of the Rockets and subsequent Warriors Dynasty which won 3 championships over a 5 year period. The influence of these teams and the use of analytics by Daryl Morey caused a dynamic shift over a short period of time and while 10 years may be a small sample size, the success of the three point shot is not trending down. 
+
+```{r winsthreesplot, echo=FALSE}
+seasonSelected <- c(2010:2016)
+Tbox.sel <- filter(Tbox,Season%in%seasonSelected)
+attach(Tbox.sel)
+X <- data.frame(T=Team, P2p, P3p, W, AS=P2A+P3A+FTA, Season)
+detach(Tbox.sel)
+labs <- c("2-point shots (% made)",
+          "3-point shots (% made)",
+          "Wins",
+          "Total shots attempted")
+p <- bubbleplot(X, id="T", x="P2p", y="P3p", col="W",
+           size="AS", labels=labs, title=paste0("NBA - ", seasonSelected))
+p <- ggplot(X, aes(x = P2p, y = P3p, color= W,
+                   size = AS)) + 
+  geom_point() + 
+  labs(x ="2-point shots (% made)",
+          y = "3-point shots (% made)",
+          color="Wins",
+          size = "Total shots attempted", title = "Team Wins in relation to 3-pt and 2-pt percentage 2010-2016")
+q <- p + transition_states(Season)
+animate(q)
+plot(q)
+```
+
+## Conclusion
+The main goal of this research was to use data to identify different factors in NBA history that have caused the 3 point revolution throughout the league over the past decade. My research provided me with a substantial amount of data and subsequently I found 2 different events amongst others that greatly affected the shift in offensive basketball. The influence of Stephen Curry and the increased use of analytics by Daryl Morey clearly caused a rapid shift in how NBA has evolved over the past 10 years and also provides distinct boundaries between the different eras of the NBA. While the data displayed above displays two components of a larger story in the shift of offense in basketball, it also provides a blueprint on how to use statistics combined with historical research to identify important points in the past. 
+
+## Data Wrangling/Source
+Most of the data was collected from the Basketball references database (https://www.basketball-reference.com). The data on this website was pulled using an API with the use of the nbaStatsR library. The database contains player statistics including points per game, shot attempts per game, etc. The data base also provides team statistics for each organization in the NBA including wins, team field goal percentage etc. 
+
+
+## Supplements
+```{r factorstosuccess, echo=FALSE}
+teamsSelected <- c("HOU", "LAC", "SAS", "GSW")
+seasonSelected <- 2016
+Pbox.sel <- subset(Pbox, Team %in% teamsSelected & MIN>=1500 & Season==seasonSelected)
+
+attach(Pbox.sel)
+X <- data.frame(ID=Player, Team, V1=DREB/MIN, V2=STL/MIN,
+                V3=BLK/MIN, V4=MIN)
+detach(Pbox.sel)
+labs <- c("Defensive Rebounds","Steals","Blocks",
+          "Total minutes played")
+bubbleplot(X, id="ID", x="V1", y="V2", col="V3",
+           size="V4", text.col="Team", labels=labs,
+           title=paste0("4 secondary factors of success in the NBA, 
+                        Players on top teams by wins of ", seasonSelected),
+           text.legend=TRUE, text.size=3.5, scale=FALSE)
+
+```
+
+## Citations
+Schuhmann, John, and Archive. “NBA's 3-Point Revolution: How 1 Shot Is Changing the Game.” NBA.com, Oct. 2020, https://www.nba.com/news/3-point-era-nba-75. 
+
+Zs. “Moreyball: The Houston Rockets and Analytics.” Digital Innovation and Transformation, 5 Apr. 2015, https://digital.hbs.edu/platform-digit/submission/moreyball-the-houston-rockets-and-analytics. 
+

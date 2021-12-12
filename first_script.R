@@ -65,27 +65,16 @@ Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
 #Get Game ID's and Gamelog Data
 
 # Select seasons from 1949 and after
-selectedSeasons <- c(2010:2020)
+selectedSeasons <- c(2004:2020)
 # Get game IDs for Regular Season and Playoffs
-gameIds_Reg <- suppressWarnings(seasons_schedule(seasons = selectedSeasons, season_types = "Regular Season") %>% select(idGame, slugMatchup))
-gameIds_PO <- suppressWarnings(seasons_schedule(seasons = selectedSeasons, season_types = "Playoffs") %>% select(idGame, slugMatchup))
-gameIds_all <- rbind(gameIds_Reg, gameIds_PO)
-# Peek at the game IDs
-head(gameIds_all)
-tail(gameIds_all)
+
 #####################
 ## Retrieve gamelog data for players and teams
 #####################
 # Get player gamelogs
 P_gamelog_reg <- suppressWarnings(game_logs(seasons = selectedSeasons, league = "NBA", result_types = "player", season_types = "Regular Season"))
-P_gamelog_po <- suppressWarnings(game_logs(seasons = selectedSeasons, league = "NBA", result_types = "player", season_types = "Playoffs"))
-P_gamelog_all <- rbind(P_gamelog_reg, P_gamelog_po)
-View(head(P_gamelog_all))
 # Get team gamelogs
 T_gamelog_reg <- suppressWarnings(game_logs(seasons = selectedSeasons, league = "NBA", result_types = "team", season_types = "Regular Season"))
-T_gamelog_po <- suppressWarnings(game_logs(seasons = selectedSeasons, league = "NBA", result_types = "team", season_types = "Playoffs"))
-T_gamelog_all <- rbind(T_gamelog_reg, T_gamelog_po)
-View(head(T_gamelog_all))
 
 #####################
 ## Use Regular Season data
@@ -137,25 +126,11 @@ Pbox.sel <- subset(Pbox, Team==teamSelected &
                      MIN>=1000)
 seasonSelected <- 2016
 barline(data=Pbox.sel[Pbox.sel$Season==seasonSelected,], id="Player",
-        bars=c("P2M","P3M","FTM"), line="PTS",
-        order.by="PTS", labels.bars=c("2PM","3PM","FTM"),
+        bars=c("P2M","P3M"), line="PTS",
+        order.by="PTS", labels.bars=c("2PM","3PM"),
         title=teamSelected)
 
 
-##
-# Create Tbox (Team boxscore) for each Regular Season
-Tbox <- T_gamelog_reg %>%
-  group_by("Season"=yearSeason, "Team"=slugTeam) %>%
-  dplyr::summarise(GP=n(), MIN=sum(round(minutesTeam/5)),
-                   PTS=sum(ptsTeam),
-                   W=sum(outcomeGame=="W"), L=sum(outcomeGame=="L"),
-                   P2M=sum(fg2mTeam), P2A=sum(fg2aTeam), P2p=P2M/P2A,
-                   P3M=sum(fg3mTeam), P3A=sum(fg3aTeam), P3p=P3M/P3A,
-                   FTM=sum(ftmTeam), FTA=sum(ftaTeam), FTp=FTM/FTA,
-                   OREB=sum(orebTeam), DREB=sum(drebTeam), AST=sum(astTeam),
-                   TOV=sum(tovTeam), STL=sum(stlTeam), BLK=sum(blkTeam),
-                   PF=sum(pfTeam), PM=sum(plusminusTeam)) %>%
-  as.data.frame()
 
 ## This scatter displays the relationship between 
 # assists and turnovers, each dot represents a player categorical variable
@@ -178,7 +153,7 @@ scatterplot(X, data.var=c("AST","TOV"), z.var="PTS",
 
 
 # This bubble plot shows the relationshio between 2 point percentage 
-# and 3 point percentage, attempted shots are the circle size, free throw percentage is
+# and 3 point percentage, attempted shots are the circle size, winpercentage is
 # represented as the color of the circle
 
 seasonSelected <- c(2010:2016)
@@ -198,7 +173,7 @@ p <- ggplot(X, aes(x = P2p, y = P3p, color= W,
   labs(x ="2-point shots (% made)",
           y = "3-point shots (% made)",
           color="Wins",
-          size = "Total shots attempted")
+          size = "Total shots attempted", title = "Team Wins in relation to 3-pt and 2-pt percentage 2010-2016")
 q <- p + transition_states(Season)
 animate(q)
 plot(q)
@@ -225,7 +200,8 @@ labs <- c("Defensive Rebounds","Steals","Blocks",
           "Total minutes played")
 bubbleplot(X, id="ID", x="V1", y="V2", col="V3",
            size="V4", text.col="Team", labels=labs,
-           title=paste0("NBA Players in ", seasonSelected),
+           title=paste0("4 secondary factors of success in the NBA, 
+                        Players on top teams by wins of ", seasonSelected),
            text.legend=TRUE, text.size=3.5, scale=FALSE)
 
 
@@ -242,7 +218,7 @@ labs <- c("Defensive Rebounds","Steals","Blocks",
           "Total minutes played")
 bubbleplot(X, id="ID", x="V1", y="V2", col="V3",
            size="V4", text.col="Team", labels=labs,
-           title=paste0("NBA Players in ", seasonSelected),
+           title=paste0("4 secondary factors of success ", seasonSelected),
            text.legend=TRUE, text.size=3.5, scale=FALSE)
 
 ## cluster analysis offensive efficency ratios
@@ -255,17 +231,11 @@ bubbleplot(X, id="ID", x="V1", y="V2", col="V3",
 #Hierarchical Clustering of NBA players
 
 gamedata <- game_logs(seasons = 2020)
-
-#### Here we look at the minutes played and points scored
-plot1 <- ggplot(gamedata, aes(minutes,pts))+
-  geom_point()
-plot1
-
-
 plot2 <-ggplot(gamedata, aes(minutes,pts))+
-  geom_line()+
+  geom_point(aes(alpha= 1/10))+
   geom_smooth(method = 'loess')+
-  facet_wrap(~nameTeam)
+  facet_wrap(~nameTeam)+ 
+  theme(legend.position = "none")
 plot2
 ## attempts vs made 
 
@@ -283,7 +253,7 @@ print(Threepointleaders)
 
 p1 <- ggplot(aes(y = X3p, x = (Year)),data = Threepointleaders) + geom_line(aes())+geom_point(aes(color = Player))
 
-p1 + labs(title = "NBA Annual 3 Point 1979 to 2020", x = NULL, y = NULL)+ 
+p1 + labs(title = "NBA Annual 3 Point Leaders 1979 to 2020", x = NULL, y = NULL)+ 
   ##scale_x_date()+ 
   theme(legend.position = "none")
 
